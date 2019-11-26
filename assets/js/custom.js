@@ -6,6 +6,49 @@ var gptadslots = [];
 var googletag = googletag || { cmd: [] };
 
 googletag.cmd.push(function () {
+    let news_dom = document.getElementById('all_news');
+    if (news_dom.hasChildNodes) {
+        // modify here if you want ads position changed
+        let news__1 = '2';
+        let news__2 = '4';
+
+        // news DOM nodes
+        let newsNode_1 = document.getElementById(`top_news_${news__1}`);
+        let newsNode_2 = document.getElementById(`top_news_${news__2}`);
+
+        // creating Ads DOM nodes -- FIRST
+        let ads1 = new DocumentFragment();
+
+        let item_1 = document.createElement("li");
+        item_1.setAttribute('id', 'top_news_ads1');
+        item_1.setAttribute('style', 'display:none;');
+
+        let div__1 = document.createElement("div");
+        div__1.setAttribute('id', 'div-gpt-ad-1551357349271-9');
+        div__1.setAttribute('class', 'top_div1');
+
+        item_1.appendChild(div__1);
+        ads1.appendChild(item_1);
+
+        // creating Ads DOM nodes -- SECOND
+        let ads2 = new DocumentFragment();
+
+        let item_2 = document.createElement("li");
+        item_2.setAttribute('id', 'top_news_ads2');
+        item_2.setAttribute('style', 'display:none;');
+
+        let div__2 = document.createElement("div");
+        div__2.setAttribute('id', 'div-gpt-ad-1565767605361-0');
+        div__2.setAttribute('class', 'top_div1');
+
+        item_2.appendChild(div__2);
+        ads2.appendChild(item_2);
+
+        // append to the DOM
+        console.log('Appending Ads to........: ', newsNode_1, newsNode_2);
+        news_dom.insertBefore(ads1, newsNode_1);
+        news_dom.insertBefore(ads2, newsNode_2);
+
         // SRA
         googletag.pubads().enableSingleRequest();
         googletag.pubads().collapseEmptyDivs();
@@ -25,8 +68,6 @@ googletag.cmd.push(function () {
                 console.log('ad1 HTML@'+(Date.now()-timerStart) + 'ms');
                 document.querySelector('#div-gpt-ad-1551357349271-9 > div > iframe').onload = function(){
                     console.log('ad1 content load@'+(Date.now()-timerStart) + 'ms');
-                     var event = new CustomEvent('readyToLoad');
-                     document.body.dispatchEvent(event);
                 }
 
             }
@@ -36,8 +77,6 @@ googletag.cmd.push(function () {
                 console.log('ad1 HTML@'+(Date.now()-timerStart) + 'ms');
                 document.querySelector('#div-gpt-ad-1565767605361-0 > div > iframe').onload = function(){
                     console.log('ad2 content load@'+(Date.now()-timerStart) + 'ms');
-                    var event = new CustomEvent('readyToLoad');
-                     document.body.dispatchEvent(event);
                 }
 
             }
@@ -58,7 +97,10 @@ googletag.cmd.push(function () {
         googletag.display('div-gpt-ad-1565767605361-0');
         googletag.display('div-gpt-ad-1551357349271-9');
 
-     
+    } else {
+        console.log('News list is empty!');
+        return
+    }
 });
 
 
@@ -124,34 +166,28 @@ function fetchRecommends(res) {
     }
 
     // attach recFragment to main DOM
-    document.body.addEventListener('readyToLoad',function(mEvent){
-        recommended_app_section_node.appendChild(recFragment);
-    });
+    recommended_app_section_node.appendChild(recFragment);
+    mql = window.matchMedia('(max-width: 320px)');
+    if (mql.matches) {
+        var icoColl = document.querySelectorAll('.fig_div:nth-last-child(-n+4)');
+        for (var i = 0; i < icoColl.length; i++) {
+            icoColl[i].classList.add('fourinch');
+        }
+        var nextdiv = document.createElement("a");
+        nextdiv.id = 'change_arrowicon'
+        //nextdiv.className = 'glyph-icon flaticon-down-arrow';
 
+        var arrImg = document.createElement("img");
+        arrImg.id = 'arrow_img';
+        arrImg.src = 'assets/images/down-arrow-sc.svg';
+        nextdiv.appendChild(arrImg);
 
-    
-}
+        nextdiv.href = "javascript:show_nextitem();"
 
-mql = window.matchMedia('(max-width: 320px)');
-if (mql.matches) {
-    var icoColl = document.querySelectorAll('.fig_div:nth-last-child(-n+4)');
-    for (var i = 0; i < icoColl.length; i++) {
-        icoColl[i].classList.add('fourinch');
+        document.getElementById('recommended_app_section').appendChild(nextdiv);
     }
-    var nextdiv = document.createElement("a");
-    nextdiv.id = 'change_arrowicon'
-    //nextdiv.className = 'glyph-icon flaticon-down-arrow';
-
-    var arrImg = document.createElement("img");
-    arrImg.id = 'arrow_img';
-    arrImg.src = 'assets/images/down-arrow-sc.svg';
-    nextdiv.appendChild(arrImg);
-
-    nextdiv.href = "javascript:show_nextitem();"
-
-    document.getElementById('recommended_app_section').appendChild(nextdiv);
+    flag_var = 1;
 }
-flag_var = 1;
 
 // FETCH NEWS
 const fetchNews = async (query) => {
@@ -188,9 +224,7 @@ const fetchNews = async (query) => {
     }).then(res => res.json())
         .then(res => {
             if (res.code === 200) {
-                //document.body.addEventListener('readyToLoad',function(mEvent){
-                    renderNews(res.data);
-                //},true);
+                renderNews(res.data);
             }
             else renderNews(false);
         })

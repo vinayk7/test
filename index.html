@@ -105,147 +105,52 @@
             </section>
         </div>
     </div>
-    <script src="./assets/js/crypto-js-bundle.min.js" defer></script>
-    <!-- <script src="./assets/js/custom.js" defer></script> -->
-    <!-- search script init -->
-    <script id="search_siteplug"></script>
-    <script id="site_redirect"></script>
-    <!-- <script>dqs('#search_in_page').style.display = 'block'; dqs('#button-icon').style.display = 'block';</script> -->
-</body>
-
-<script>
-    var allNews = [];
 
 
-window.addEventListener('DOMContentLoaded', (event) => {
-    console.log('DOM fully loaded and parsed');
-    fetchNews();
-    //CSS CLASSES SETUP: based on device
-    var mql = window.matchMedia('(max-width: 699px)');
-    if (mql.matches) {
-        document.querySelector('#indus_cont').classList.remove("indus_middle");;
-    }
-    mql = window.matchMedia('(max-width:339px)');
-    if (mql.matches) {
-        document.querySelector('#indus_cont_five').classList.add("indus_middle_five");;
-    }
-    mql = window.matchMedia('(max-width: 399px)');
-    if (mql.matches) {
-        var sel = '#all_news';
-        var coll = document.querySelector(sel).classList.add('lessthan400');
+    <script>
+        // FETCH NEWS
+        const fetchNews = async (query) => {
+            console.log('fetching the news......');
+            let pageNumber = 1;
+            let newsAppKey = 'DVj2UsFaFnN+3kn4VHWPS9hUiLCz4eOtblRfAUrDC50=';
+            let current_parameter = query;
+            // let bigAdInterval = 2;
+            // let smallAdInterval = 5;
 
-    } else {
-        var sel = '#all_news';
-        var coll = document.querySelector(sel).classList.add('morethan400');
-    }
-});
+            let timestamp = new Date().getTime();
+            let message_get = "cid=1&fields=data.rows.id%2Cdata.rows.title%2Cdata.rows.deepLinkUrl%2Cdata.rows.publishTime%2Cdata.rows.images%2Cdata.rows.source%2Cdata.rows.sourceLogo&langCode=hi&pageNumber=" + pageNumber + "&pageSize=1&partner=indus&puid=" + current_parameter + "&ts=" + timestamp + "GET";
+            let hash_get = CryptoJS.HmacSHA1(message_get, "4IGAIGGb8z1nOGzpBiSeQA==");
+            let hashInBase64_get = CryptoJS.enc.Base64.stringify(hash_get);
+            // let message_post = "partner=indus&puid=" + current_parameter + "&ts=" + timestamp + "POST"
+            // let hash_post = CryptoJS.HmacSHA1(message_post, "4IGAIGGb8z1nOGzpBiSeQA==");
+            // let hashInBase64_post = CryptoJS.enc.Base64.stringify(hash_post);
 
-// APPEND SITEPLUG SCRIPT
-let sitePlugFragment = document.createElement('script');
-sitePlugFragment.src = "https://kme46.siteplug.com/qlapi?o=kme46&s=88107&u=[domain]&f=json&n=8&i=1&is=36x36&di=&callback=fetchRecommends";
-document.body.appendChild(sitePlugFragment);
+            // let track_data = {
+            //     "viewedDate": timestamp,
+            //     "stories": []
+            // };
 
-// RECOMMENDED APPS
-function fetchRecommends(res) {
-    if (typeof res == 'string') {
-        let res = JSON.parse(res);
-    }
-    let data = res['data'];
+            let url = "https://feed.dailyhunt.in/api/v2/syndication/items?pageSize=1&fields=data.rows.id,data.rows.title,data.rows.deepLinkUrl,data.rows.publishTime,data.rows.images,data.rows.source,data.rows.sourceLogo&cid=1&langCode=hi&pageNumber=" + pageNumber + "&partner=indus&ts=" + timestamp + "&puid=" + current_parameter;
 
-    let recommended_app_section_node = document.getElementById('recommended_app_section');
-    let recFragment = new DocumentFragment();
-
-    for (let i = 0; i < data.length; i++) {
-        let news_node = document.createElement('div');
-        news_node.classList.add('col-xs-3');
-        news_node.classList.add('panel');
-        news_node.classList.add('fig_div');
-        news_node.id = `fig_div_${i}`;
-        let img_src = data[i]['iurl'].replace('36x36', '128x128');
-
-        let single_item = `<div class="panel-body">
-                <a id="app_url_${i}" href="${data[i]['rurl']}">
-                    <img class="img-responsive img-thumbnail center-block recommended_apps"
-                        id="app_image_${i}" src="${img_src}" alt="${data[i]['brand']}"
-                        data-name="${data[i]['brand']}">
-                    <span class="panel-heading word-wrap recommended_apps_name"
-                        id="recommended_apps_name_${i}">${data[i]['brand']}
-                    </span>
-                </a>
-            </div>`;
-
-        news_node.innerHTML = single_item;
-        recFragment.appendChild(news_node);
-    }
-
-    // attach recFragment to main DOM
-    recommended_app_section_node.appendChild(recFragment);
-    mql = window.matchMedia('(max-width: 320px)');
-    if (mql.matches) {
-        var icoColl = document.querySelectorAll('.fig_div:nth-last-child(-n+4)');
-        for (var i = 0; i < icoColl.length; i++) {
-            icoColl[i].classList.add('fourinch');
+            await fetch(url, {
+                method: 'GET',
+                mode: 'cors',
+                credentials: 'include',
+                headers: {
+                    'Authorization': "key=" + newsAppKey,
+                    'Signature': hashInBase64_get
+                }
+            }).then(res => res.json())
+                .then(res => {
+                    if (res.code === 200) {
+                        renderNews(res.data);
+                    }
+                    else renderNews(false);
+                })
+                .catch(err => console.log(err))
         }
-        var nextdiv = document.createElement("a");
-        nextdiv.id = 'change_arrowicon'
-        //nextdiv.className = 'glyph-icon flaticon-down-arrow';
-
-        var arrImg = document.createElement("img");
-        arrImg.id = 'arrow_img';
-        arrImg.src = 'assets/images/down-arrow-sc.svg';
-        nextdiv.appendChild(arrImg);
-
-        nextdiv.href = "javascript:show_nextitem();"
-
-        document.getElementById('recommended_app_section').appendChild(nextdiv);
-    }
-    flag_var = 1;
-}
-
-// FETCH NEWS
-const fetchNews = async (query) => {
-    console.log('fetching the news......');
-    let pageNumber = 1;
-    let newsAppKey = 'DVj2UsFaFnN+3kn4VHWPS9hUiLCz4eOtblRfAUrDC50=';
-    let current_parameter = query;
-    // let bigAdInterval = 2;
-    // let smallAdInterval = 5;
-
-    let timestamp = new Date().getTime();
-    let message_get = "cid=1&fields=data.rows.id%2Cdata.rows.title%2Cdata.rows.deepLinkUrl%2Cdata.rows.publishTime%2Cdata.rows.images%2Cdata.rows.source%2Cdata.rows.sourceLogo&langCode=hi&pageNumber=" + pageNumber + "&pageSize=1&partner=indus&puid=" + current_parameter + "&ts=" + timestamp + "GET";
-    let hash_get = CryptoJS.HmacSHA1(message_get, "4IGAIGGb8z1nOGzpBiSeQA==");
-    let hashInBase64_get = CryptoJS.enc.Base64.stringify(hash_get);
-    // let message_post = "partner=indus&puid=" + current_parameter + "&ts=" + timestamp + "POST"
-    // let hash_post = CryptoJS.HmacSHA1(message_post, "4IGAIGGb8z1nOGzpBiSeQA==");
-    // let hashInBase64_post = CryptoJS.enc.Base64.stringify(hash_post);
-
-    // let track_data = {
-    //     "viewedDate": timestamp,
-    //     "stories": []
-    // };
-
-    let url = "https://feed.dailyhunt.in/api/v2/syndication/items?pageSize=1&fields=data.rows.id,data.rows.title,data.rows.deepLinkUrl,data.rows.publishTime,data.rows.images,data.rows.source,data.rows.sourceLogo&cid=1&langCode=hi&pageNumber=" + pageNumber + "&partner=indus&ts=" + timestamp + "&puid=" + current_parameter;
-
-    await fetch(url, {
-        method: 'GET',
-        mode: 'cors',
-        credentials: 'include',
-        headers: {
-            'Authorization': "key=" + newsAppKey,
-            'Signature': hashInBase64_get
-        }
-    }).then(res => res.json())
-        .then(res => {
-            if (res.code === 200) {
-                renderNews(res.data);
-            }
-            else renderNews(false);
-        })
-        .catch(err => console.log(err))
-}
-
-// RENDER NEWS TO THE DOM
-const renderNews = data => {
+        // RENDER NEWS TO THE DOM
+        const renderNews = data => {
     if (data && data.count > 0) {
         let newsFragment = new DocumentFragment();
         console.log("Creating news feed DOM....");
@@ -329,7 +234,106 @@ const renderNews = data => {
     } else {
         console.log('Problem fetching the data.')
     }
+        }
+    </script>
+    <script src="./assets/js/crypto-js-bundle.min.js" onload="fetchNews();"></script>
+    <!-- <script src="./assets/js/custom.js" defer></script> -->
+    <!-- search script init -->
+    <script id="search_siteplug"></script>
+    <script id="site_redirect"></script>
+    <!-- <script>dqs('#search_in_page').style.display = 'block'; dqs('#button-icon').style.display = 'block';</script> -->
+</body>
+
+<script>
+    var allNews = [];
+
+
+window.addEventListener('DOMContentLoaded', (event) => {
+    console.log('DOM fully loaded and parsed');
+
+    //CSS CLASSES SETUP: based on device
+    var mql = window.matchMedia('(max-width: 699px)');
+    if (mql.matches) {
+        document.querySelector('#indus_cont').classList.remove("indus_middle");;
+    }
+    mql = window.matchMedia('(max-width:339px)');
+    if (mql.matches) {
+        document.querySelector('#indus_cont_five').classList.add("indus_middle_five");;
+    }
+    mql = window.matchMedia('(max-width: 399px)');
+    if (mql.matches) {
+        var sel = '#all_news';
+        var coll = document.querySelector(sel).classList.add('lessthan400');
+
+    } else {
+        var sel = '#all_news';
+        var coll = document.querySelector(sel).classList.add('morethan400');
+    }
+});
+
+// APPEND SITEPLUG SCRIPT
+let sitePlugFragment = document.createElement('script');
+sitePlugFragment.src = "https://kme46.siteplug.com/qlapi?o=kme46&s=88107&u=[domain]&f=json&n=8&i=1&is=36x36&di=&callback=fetchRecommends";
+document.body.appendChild(sitePlugFragment);
+
+// RECOMMENDED APPS
+function fetchRecommends(res) {
+    if (typeof res == 'string') {
+        let res = JSON.parse(res);
+    }
+    let data = res['data'];
+
+    let recommended_app_section_node = document.getElementById('recommended_app_section');
+    let recFragment = new DocumentFragment();
+
+    for (let i = 0; i < data.length; i++) {
+        let news_node = document.createElement('div');
+        news_node.classList.add('col-xs-3');
+        news_node.classList.add('panel');
+        news_node.classList.add('fig_div');
+        news_node.id = `fig_div_${i}`;
+        let img_src = data[i]['iurl'].replace('36x36', '128x128');
+
+        let single_item = `<div class="panel-body">
+                <a id="app_url_${i}" href="${data[i]['rurl']}">
+                    <img class="img-responsive img-thumbnail center-block recommended_apps"
+                        id="app_image_${i}" src="${img_src}" alt="${data[i]['brand']}"
+                        data-name="${data[i]['brand']}">
+                    <span class="panel-heading word-wrap recommended_apps_name"
+                        id="recommended_apps_name_${i}">${data[i]['brand']}
+                    </span>
+                </a>
+            </div>`;
+
+        news_node.innerHTML = single_item;
+        recFragment.appendChild(news_node);
+    }
+
+    // attach recFragment to main DOM
+    recommended_app_section_node.appendChild(recFragment);
+    mql = window.matchMedia('(max-width: 320px)');
+    if (mql.matches) {
+        var icoColl = document.querySelectorAll('.fig_div:nth-last-child(-n+4)');
+        for (var i = 0; i < icoColl.length; i++) {
+            icoColl[i].classList.add('fourinch');
+        }
+        var nextdiv = document.createElement("a");
+        nextdiv.id = 'change_arrowicon'
+        //nextdiv.className = 'glyph-icon flaticon-down-arrow';
+
+        var arrImg = document.createElement("img");
+        arrImg.id = 'arrow_img';
+        arrImg.src = 'assets/images/down-arrow-sc.svg';
+        nextdiv.appendChild(arrImg);
+
+        nextdiv.href = "javascript:show_nextitem();"
+
+        document.getElementById('recommended_app_section').appendChild(nextdiv);
+    }
+    flag_var = 1;
 }
+
+
 
 // SEARCH BAR
 let search_dom_node = document.getElementById('search_in_page');

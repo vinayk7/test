@@ -68,6 +68,8 @@ googletag.cmd.push(function () {
                 console.log('ad1 HTML@'+(Date.now()-timerStart) + 'ms');
                 document.querySelector('#div-gpt-ad-1551357349271-9 > div > iframe').onload = function(){
                     console.log('ad1 content load@'+(Date.now()-timerStart) + 'ms');
+                     var event = new CustomEvent('readyToLoad');
+                     document.body.dispatchEvent(event);
                 }
 
             }
@@ -77,6 +79,8 @@ googletag.cmd.push(function () {
                 console.log('ad1 HTML@'+(Date.now()-timerStart) + 'ms');
                 document.querySelector('#div-gpt-ad-1565767605361-0 > div > iframe').onload = function(){
                     console.log('ad2 content load@'+(Date.now()-timerStart) + 'ms');
+                    var event = new CustomEvent('readyToLoad');
+                     document.body.dispatchEvent(event);
                 }
 
             }
@@ -224,7 +228,9 @@ const fetchNews = async (query) => {
     }).then(res => res.json())
         .then(res => {
             if (res.code === 200) {
-                renderNews(res.data);
+                document.body.addEventListener('readyToLoad',function(mEvent){
+                    renderNews(res.data);
+                },true);
             }
             else renderNews(false);
         })

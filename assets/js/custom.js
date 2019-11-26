@@ -124,28 +124,34 @@ function fetchRecommends(res) {
     }
 
     // attach recFragment to main DOM
-    recommended_app_section_node.appendChild(recFragment);
-    mql = window.matchMedia('(max-width: 320px)');
-    if (mql.matches) {
-        var icoColl = document.querySelectorAll('.fig_div:nth-last-child(-n+4)');
-        for (var i = 0; i < icoColl.length; i++) {
-            icoColl[i].classList.add('fourinch');
-        }
-        var nextdiv = document.createElement("a");
-        nextdiv.id = 'change_arrowicon'
-        //nextdiv.className = 'glyph-icon flaticon-down-arrow';
+    document.body.addEventListener('readyToLoad',function(mEvent){
+        recommended_app_section_node.appendChild(recFragment);
+    });
 
-        var arrImg = document.createElement("img");
-        arrImg.id = 'arrow_img';
-        arrImg.src = 'assets/images/down-arrow-sc.svg';
-        nextdiv.appendChild(arrImg);
 
-        nextdiv.href = "javascript:show_nextitem();"
-
-        document.getElementById('recommended_app_section').appendChild(nextdiv);
-    }
-    flag_var = 1;
+    
 }
+
+mql = window.matchMedia('(max-width: 320px)');
+if (mql.matches) {
+    var icoColl = document.querySelectorAll('.fig_div:nth-last-child(-n+4)');
+    for (var i = 0; i < icoColl.length; i++) {
+        icoColl[i].classList.add('fourinch');
+    }
+    var nextdiv = document.createElement("a");
+    nextdiv.id = 'change_arrowicon'
+    //nextdiv.className = 'glyph-icon flaticon-down-arrow';
+
+    var arrImg = document.createElement("img");
+    arrImg.id = 'arrow_img';
+    arrImg.src = 'assets/images/down-arrow-sc.svg';
+    nextdiv.appendChild(arrImg);
+
+    nextdiv.href = "javascript:show_nextitem();"
+
+    document.getElementById('recommended_app_section').appendChild(nextdiv);
+}
+flag_var = 1;
 
 // FETCH NEWS
 const fetchNews = async (query) => {
@@ -182,9 +188,9 @@ const fetchNews = async (query) => {
     }).then(res => res.json())
         .then(res => {
             if (res.code === 200) {
-                document.body.addEventListener('readyToLoad',function(mEvent){
+                //document.body.addEventListener('readyToLoad',function(mEvent){
                     renderNews(res.data);
-                },true);
+                //},true);
             }
             else renderNews(false);
         })

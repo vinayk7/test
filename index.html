@@ -170,7 +170,6 @@
 
                 data.rows.forEach((i, idx) => {
 
-                   
                     if (idx === 0) {
 
                         let newsFragment = new DocumentFragment();
@@ -218,14 +217,11 @@
                     } 
                     else if(idx<smallAdInterval) 
                     {
-                        
                         let li = document.createElement('li');
                         li.id = `top_news_${idx}`;
 
                         let sourceImg = i.sourceLogo.replace(/{CMD}/g, "crop").replace(/{W}x{H}_{Q}/g, "25x25_60").replace(/{EXT}/g, "webp");
                         sourceImg = sourceImg.replace('96x96_60', '20x20_60');
-
-
 
                         let imgSrc = i.images[0].replace(/{CMD}/g, "crop").replace(/{W}x{H}_{Q}/g, "150x150_90").replace(/{EXT}/g, "webp");
 
@@ -254,14 +250,10 @@
                                 </div>
                             </a>
                         </div>`;
-
                         fstblk.appendChild(li);
-
                     }
                     else if( (smallAdInterval < idx) && (idx < bigAdInterval) )
                     {
-                         
-           
                         if(fstblk){
                             document.getElementById('all_news').insertBefore(fstblk, document.getElementById('top_news_ads1'));
                             fstblk = null
@@ -307,8 +299,6 @@
                     }
                     else if( (idx > smallAdInterval) && (idx > bigAdInterval) )
                     {
-                        
-                        
                         if(secblk){
                             document.getElementById('all_news').insertBefore(secblk, document.getElementById('top_news_ads2'));
                             secblk = null
@@ -353,10 +343,6 @@
                     }
                     
                 });
-                
- 
-                debugger;
-                
                 document.getElementById('all_news').appendChild(thdblk);
                 
             } else {

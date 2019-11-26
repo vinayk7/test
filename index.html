@@ -24,6 +24,9 @@
                 console.log("Page load complete@: %c "+ (Date.now()-timerStart) + ' ms ', 'color:white;background-color:darkviolet'); 
                 //alert('Page loading took: ' +  ((Date.now()-timerStart)/1000).toFixed(2) + ' seconds' )
             });
+
+        var smallAdInterval = 2;
+        var bigAdInterval = 4;
     </script>
 
     <style>
@@ -68,13 +71,14 @@
                         <div id="recommended_app_section"></div>
                     </div>
                     <!--  TopNews Section  -->
+
+                    <script>
+                        var googletag = googletag || {};
+                        googletag.cmd = googletag.cmd || [];
+                    </script>
+
                     <div class="indus_full" id="indus_full">
                         <ul id="all_news" class="top_news_section top-buffer">
-
-                            <script>
-                            var googletag = googletag || {};
-                            googletag.cmd = googletag.cmd || [];
-                            </script>
 
                             <li id="top_news_ads1">
                                 <div id="div-gpt-ad-1551357349271-9">
@@ -92,6 +96,7 @@
                                 */
                                 </script>
                             </li>
+
                             <li id="top_news_ads2">
                                 <div id="div-gpt-ad-1565767605361-0">
                                 <script type="text/javascript">
@@ -101,6 +106,7 @@
                                 </script>
                                 </div>
                             </li>
+
                         </ul>
                     </div>
                 </div>
@@ -116,8 +122,7 @@
             let pageNumber = 1;
             let newsAppKey = 'DVj2UsFaFnN+3kn4VHWPS9hUiLCz4eOtblRfAUrDC50=';
             let current_parameter = query;
-            // let bigAdInterval = 2;
-            // let smallAdInterval = 5;
+ 
 
             let timestamp = new Date().getTime();
             let message_get = "cid=1&fields=data.rows.id%2Cdata.rows.title%2Cdata.rows.deepLinkUrl%2Cdata.rows.publishTime%2Cdata.rows.images%2Cdata.rows.source%2Cdata.rows.sourceLogo&langCode=hi&pageNumber=" + pageNumber + "&pageSize=1&partner=indus&puid=" + current_parameter + "&ts=" + timestamp + "GET";
@@ -153,102 +158,206 @@
         }
         // RENDER NEWS TO THE DOM
         const renderNews = data => {
-    if (data && data.count > 0) {
-        let newsFragment = new DocumentFragment();
-        console.log("Creating news feed DOM....");
+            if (data && data.count > 0) {
 
-        data.rows = data.rows.sort((a,b) => { return b.publishTime - a.publishTime });
-        data.rows.forEach((i, idx) => {
-            let li = document.createElement('li');
-            li.id = `top_news_${idx}`;
+                
 
-            let sourceImg = i.sourceLogo.replace(/{CMD}/g, "crop").replace(/{W}x{H}_{Q}/g, "25x25_60").replace(/{EXT}/g, "webp");
-            sourceImg = sourceImg.replace('96x96_60', '20x20_60');
+                console.log("Creating news feed DOM....");
 
-            if (idx === 0) {
-                let imgSrc = i.images[0].replace(/{CMD}/g, "crop").replace(/{W}x{H}_{Q}/g, "700x400_80").replace(/{EXT}/g, "webp");
+                data.rows = data.rows.sort((a,b) => { return b.publishTime - a.publishTime }); // fix the orders BUG:dailyhunt
 
-                li.innerHTML = `<div class="top_div">
-                    <a id="news_href_0" href="${i.deepLinkUrl}">
-                        <div class="col-xs-12" id="pic">
-                            <img
-                                id="news_image_0"
-                                class="img-r-esponsive img-rounded img-auto"
-                                src="${imgSrc}"
-                                alt="${i.source}"
-                            >
-                        </div>
-                        <div class="col-xs-12">
-                            <div class="first_top_news">
-                                <div class="top_news_pro">
+                var fstblk = new DocumentFragment();
+                var secblk = new DocumentFragment();
+                var thdblk = new DocumentFragment();
+
+                data.rows.forEach((i, idx) => {
+
+                    if (idx === 0) {
+
+                        let newsFragment = new DocumentFragment();
+
+                        let li = document.createElement('li');
+                        li.id = `top_news_${idx}`;
+
+                        let sourceImg = i.sourceLogo.replace(/{CMD}/g, "crop").replace(/{W}x{H}_{Q}/g, "25x25_60").replace(/{EXT}/g, "webp");
+                        sourceImg = sourceImg.replace('96x96_60', '20x20_60');
+
+                        let imgSrc = i.images[0].replace(/{CMD}/g, "crop").replace(/{W}x{H}_{Q}/g, "700x400_80").replace(/{EXT}/g, "webp");
+
+                        li.innerHTML = `<div class="top_div">
+                            <a id="news_href_0" href="${i.deepLinkUrl}">
+                                <div class="col-xs-12" id="pic">
                                     <img
-                                        src="${sourceImg}"
-                                        id="source_image_0"
-                                        class="img-r-esponsive img-auto"
-                                        alt="${i.source}"
-                                    >
-                                    <span class="source_name" id="source_name_0">${i.source}</span>
+                                        id="news_image_0"
+                                        class="img-r-esponsive img-rounded img-auto"
+                                        src="${imgSrc}"
+                                        alt="${i.source}">
                                 </div>
-                                <b id="news_heading_0" class="bwrap">${i.title}</b>
-                                <div class="source_image">
-                                    <h6 id="publishTime_0" class="publishTime" data-publish-ts="${i.publishTime}">${timeSince(i.publishTime)}</h6>
+                                <div class="col-xs-12">
+                                    <div class="first_top_news">
+                                        <div class="top_news_pro">
+                                            <img
+                                                src="${sourceImg}"
+                                                id="source_image_0"
+                                                class="img-r-esponsive img-auto"
+                                                alt="${i.source}">
+                                            <span class="source_name" id="source_name_0">${i.source}</span>
+                                        </div>
+                                        <b id="news_heading_0" class="bwrap">${i.title}</b>
+                                        <div class="source_image">
+                                            <h6 id="publishTime_0" class="publishTime" data-publish-ts="${i.publishTime}">${timeSince(i.publishTime)}</h6>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>`;
+                            </a>
+                        </div>`;
+                        
+                        
+                        newsFragment.appendChild(li);
+                        document.getElementById('all_news').insertBefore(newsFragment, document.getElementById('top_news_ads1'));
+
+                    } 
+                    else if(idx<smallAdInterval) 
+                    {
+                        let li = document.createElement('li');
+                        li.id = `top_news_${idx}`;
+
+                        let sourceImg = i.sourceLogo.replace(/{CMD}/g, "crop").replace(/{W}x{H}_{Q}/g, "25x25_60").replace(/{EXT}/g, "webp");
+                        sourceImg = sourceImg.replace('96x96_60', '20x20_60');
+
+                        let imgSrc = i.images[0].replace(/{CMD}/g, "crop").replace(/{W}x{H}_{Q}/g, "150x150_90").replace(/{EXT}/g, "webp");
+
+                        li.innerHTML = `<div class="top_div">
+                            <a id="news_href_${idx}" href="${i.deepLinkUrl}">
+                                <div class="col-xs-9">
+                                    <div class="top_news_pro">
+                                        <img
+                                            id="source_image_${idx}"
+                                            class="top_mar"
+                                            src="${sourceImg}"
+                                            alt="${i.source}">
+                                        <span class="source_name" id="source_name_${idx}">${i.source}</span>
+                                    </div>
+                                    <b id="news_heading_${idx}" class="bwrap">${i.title}</b>
+                                    <div class="source_image">
+                                        <h6 id="publishTime_${idx}" class="publishTime" data-publish-ts="${i.publishTime}">${timeSince(i.publishTime)}</h6>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3" id="pic">
+                                    <img
+                                        id="news_image_${idx}"
+                                        class="img-r-esponsive img-rounded img-auto feeds_right"
+                                        src="${imgSrc}"
+                                        alt="${i.source}">
+                                </div>
+                            </a>
+                        </div>`;
+                        fstblk.appendChild(li);
+                    }
+                    else if( (smallAdInterval < idx) && (idx < bigAdInterval) )
+                    {
+                        if(fstblk){
+                            document.getElementById('all_news').insertBefore(fstblk, document.getElementById('top_news_ads1'));
+                            fstblk = null
+                        }
+
+                        let li = document.createElement('li');
+                        li.id = `top_news_${idx}`;
+
+                        let sourceImg = i.sourceLogo.replace(/{CMD}/g, "crop").replace(/{W}x{H}_{Q}/g, "25x25_60").replace(/{EXT}/g, "webp");
+                        sourceImg = sourceImg.replace('96x96_60', '20x20_60');
+
+
+                        let imgSrc = i.images[0].replace(/{CMD}/g, "crop").replace(/{W}x{H}_{Q}/g, "150x150_90").replace(/{EXT}/g, "webp");
+
+                        li.innerHTML = `<div class="top_div">
+                            <a id="news_href_${idx}" href="${i.deepLinkUrl}">
+                                <div class="col-xs-9">
+                                    <div class="top_news_pro">
+                                        <img
+                                            id="source_image_${idx}"
+                                            class="top_mar"
+                                            src="${sourceImg}"
+                                            alt="${i.source}">
+                                        <span class="source_name" id="source_name_${idx}">${i.source}</span>
+                                    </div>
+                                    <b id="news_heading_${idx}" class="bwrap">${i.title}</b>
+                                    <div class="source_image">
+                                        <h6 id="publishTime_${idx}" class="publishTime" data-publish-ts="${i.publishTime}">${timeSince(i.publishTime)}</h6>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3" id="pic">
+                                    <img
+                                        id="news_image_${idx}"
+                                        class="img-r-esponsive img-rounded img-auto feeds_right"
+                                        src="${imgSrc}"
+                                        alt="${i.source}">
+                                </div>
+                            </a>
+                        </div>`;
+
+                        secblk.appendChild(li);
+
+                    }
+                    else if( (idx > smallAdInterval) && (idx > bigAdInterval) )
+                    {
+                        if(secblk){
+                            document.getElementById('all_news').insertBefore(secblk, document.getElementById('top_news_ads2'));
+                            secblk = null
+                        }
+
+                        let li = document.createElement('li');
+                        li.id = `top_news_${idx}`;
+
+                        let sourceImg = i.sourceLogo.replace(/{CMD}/g, "crop").replace(/{W}x{H}_{Q}/g, "25x25_60").replace(/{EXT}/g, "webp");
+                        sourceImg = sourceImg.replace('96x96_60', '20x20_60');
+
+
+                        let imgSrc = i.images[0].replace(/{CMD}/g, "crop").replace(/{W}x{H}_{Q}/g, "150x150_90").replace(/{EXT}/g, "webp");
+
+                        li.innerHTML = `<div class="top_div">
+                            <a id="news_href_${idx}" href="${i.deepLinkUrl}">
+                                <div class="col-xs-9">
+                                    <div class="top_news_pro">
+                                        <img
+                                            id="source_image_${idx}"
+                                            class="top_mar"
+                                            src="${sourceImg}"
+                                            alt="${i.source}">
+                                        <span class="source_name" id="source_name_${idx}">${i.source}</span>
+                                    </div>
+                                    <b id="news_heading_${idx}" class="bwrap">${i.title}</b>
+                                    <div class="source_image">
+                                        <h6 id="publishTime_${idx}" class="publishTime" data-publish-ts="${i.publishTime}">${timeSince(i.publishTime)}</h6>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3" id="pic">
+                                    <img
+                                        id="news_image_${idx}"
+                                        class="img-r-esponsive img-rounded img-auto feeds_right"
+                                        src="${imgSrc}"
+                                        alt="${i.source}">
+                                </div>
+                            </a>
+                        </div>`;
+
+                        thdblk.appendChild(li);
+                    }
+                    
+                });
+                document.getElementById('all_news').appendChild(thdblk);
+                
             } else {
-                let imgSrc = i.images[0].replace(/{CMD}/g, "crop").replace(/{W}x{H}_{Q}/g, "150x150_90").replace(/{EXT}/g, "webp");
-
-                li.innerHTML = `<div class="top_div">
-                    <a id="news_href_${idx}" href="${i.deepLinkUrl}">
-                        <div class="col-xs-9">
-                            <div class="top_news_pro">
-                                <img
-                                    id="source_image_${idx}"
-                                    class="top_mar"
-                                    src="${sourceImg}"
-                                    alt="${i.source}"
-                                >
-                                <span class="source_name" id="source_name_${idx}">${i.source}</span>
-                            </div>
-                            <b id="news_heading_${idx}" class="bwrap">${i.title}</b>
-                            <div class="source_image">
-                                <h6 id="publishTime_${idx}" class="publishTime" data-publish-ts="${i.publishTime}">${timeSince(i.publishTime)}</h6>
-                            </div>
-                        </div>
-                        <div class="col-xs-3" id="pic">
-                            <img
-                                id="news_image_${idx}"
-                                class="img-r-esponsive img-rounded img-auto feeds_right"
-                                src="${imgSrc}"
-                                alt="${i.source}"
-                            >
-                        </div>
-                    </a>
-                </div>`;
+                console.log('Problem fetching the data.')
             }
-            newsFragment.appendChild(li);
-        })
-
-        document.getElementById('all_news').appendChild(newsFragment);
-        
-    } else {
-        console.log('Problem fetching the data.')
-    }
         }
     </script>
     <script src="./assets/js/crypto-js-bundle.min.js" onload="fetchNews();"></script>
-    <!-- <script src="./assets/js/custom.js" defer></script> -->
-    <!-- search script init -->
     <script id="search_siteplug"></script>
     <script id="site_redirect"></script>
-    <!-- <script>dqs('#search_in_page').style.display = 'block'; dqs('#button-icon').style.display = 'block';</script> -->
 </body>
 
 <script>
-    var allNews = [];
-
 
 window.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');

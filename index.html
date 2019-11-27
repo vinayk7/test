@@ -107,6 +107,7 @@
                                 </div>
                             </li>
                             <script>
+                                googletag.cmd.push(function() {
                                  googletag.pubads().addEventListener('slotRenderEnded', function(event) {
                                         switch(event.slot.getAdUnitPath()){
                                             case '/42115163/IP_start.indusos.com_320X100_Mobile':
@@ -125,6 +126,7 @@
                                                     break;
                                         }
                                     });
+                                   });
                             </script>
                         </ul>
                     </div>
